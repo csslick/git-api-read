@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>github API</title>
+</head>
+<body>
+  <!-- get README
+    https://api.github.com/repos/계정/프로젝트명/파일명
+    https://api.github.com/repos/csslick/lohas/readme 
+  -->
+  <!-- get CONTENT
+    https://api.github.com/repos/계정/프로젝트명/contents/path
+    https://api.github.com/repos/csslick/lohas/readme 
+  -->
+  <p id="result">result</p>
+  <button id="get_readme">Get README</button>
+  <button id="get_content">Get CONTENT</button>
+
+
+  <script>
+    var content = 'https://api.github.com/repos/csslick/lohas/contents';
+
+    // Base64 방식의 코드 텍스트로 디코딩
+    function b64DecodeUnicode(str) {
+        // Going backwards: from bytestream, to percent-encoding, to original string.
+        return decodeURIComponent(atob(str).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+    }
+
+    function get_readme(){
+      console.log('click')
+      // readme 요청
+      fetch('https://api.github.com/repos/csslick/lohas/readme')
+        .then(function(res){
+          console.log(res);
+          return res.json();
+        })
+        .then(function(data){
+          console.log(data)
+          var git_data = data.content;
+          console.log(git_data);
+          
+          // var result = atob(Base64);
+          var result = b64DecodeUnicode(git_data)
+          var el = document.querySelector('#result');
+          el.innerHTML = result;
+          console.log(result);
+        })      
+    }
+
+    function get_content(_url){
+      console.log('click')
+      // readme 요청
+      fetch(_url)
+        .then(function(res){
+          console.log(res)
+          if(res.status == '404'){ 
+            el.innerHTML = "해당 데이터는 존재하지 않습니다."
+            return console.log("에러 응답 " + res.status)
+          }
+          console.log("정상응답 " + res);
+          return res.json();
+        })
+        .then(function(data){
+          var ul = document.createElement('ul');
+          var html = '';
+          for(var i in data){
+            html += '<li>' + data[i].name + '</li>';
+          }
+          ul.innerHTML = html;
+          document.body.appendChild(ul);
+          console.log(data);
+        })      
+    }
+
+    var el = document.querySelector('#result');
+    var btn_get_readme = document.querySelector('#get_readme');
+    var btn_get_content = document.querySelector('#get_content');
+
+    btn_get_readme.addEventListener('click', get_readme);
+    btn_get_content.addEventListener('click', function(){
+      get_content(content);
+    });
+    
+  </script>
+  
+</body>
+</html>
